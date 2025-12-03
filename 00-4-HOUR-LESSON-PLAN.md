@@ -51,10 +51,14 @@ Quick overview:
 Must-know terms:
 - **Blob**: Your file
 - **Blob ID**: Unique identifier (like a URL)
-- **Epoch**: Time period for storage
+- **Epoch**: Time period for storage (max 53 epochs = ~2 years)
 - **Deletable**: Can delete before expiration
+- **Owned (default)**: Only you can extend/fund storage
+- **Shared**: Anyone can extend/fund storage (use `--share`)
 - **Quilt**: Multiple files together
 - **Sui**: Blockchain for payments/coordination
+
+**Important:** ALL blob data is public - encrypt sensitive files!
 
 **Show live demo:**
 ```bash

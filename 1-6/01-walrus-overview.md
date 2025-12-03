@@ -40,16 +40,60 @@ Walrus is a **decentralized storage and data availability protocol** built on th
 
 ### Erasure Coding Technology
 
-Instead of storing multiple full copies of your data (expensive), Walrus:
+**The Problem with Traditional Storage:**
+Traditional blockchain storage uses **full replication** - storing complete copies of your data on multiple nodes. This is expensive and wasteful.
 
-1. **Encodes** your data into many small fragments
-2. **Distributes** fragments across storage nodes
-3. **Reconstructs** data from any subset of fragments
-4. Requires only a fraction of nodes to be online to retrieve data
+**How Walrus Solves This with Erasure Coding:**
 
-**Example:** If you store a 10MB file:
-- Traditional replication (3 copies) = 30MB total storage
-- Walrus erasure coding = ~50MB total storage, but highly distributed and fault-tolerant
+Think of erasure coding like a sophisticated puzzle system:
+
+1. **Split & Encode**: Your file is broken into pieces and mathematically encoded into MORE pieces (with redundancy)
+2. **Distribute**: These encoded pieces are spread across many storage nodes
+3. **Reconstruct**: You only need SOME of the pieces (not all) to rebuild your original file
+4. **Fault Tolerance**: Even if many nodes go offline, your data is still retrievable
+
+**Simple Analogy:**
+
+Imagine you have a secret message: **"HELLO"**
+
+- **Traditional Replication**: Store 3 complete copies
+  - Node 1: HELLO
+  - Node 2: HELLO
+  - Node 3: HELLO
+  - **Total storage**: 15 letters (3 × 5)
+  - **Retrieval**: Need at least 1 node online
+
+- **Erasure Coding**: Break it into parts and add redundancy
+  - Node 1: HE
+  - Node 2: LL
+  - Node 3: O_
+  - Node 4: H+E (encoded combination)
+  - Node 5: L+O (encoded combination)
+  - **Total storage**: 10 letters
+  - **Retrieval**: Need any 3 out of 5 nodes online to reconstruct "HELLO"
+
+**Real-World Example:**
+
+If you store a **10MB file** on Walrus:
+
+1. Walrus splits it into small chunks (e.g., 100 pieces of 100KB each)
+2. Creates encoded redundant chunks (e.g., 150 additional pieces)
+3. Distributes all 250 pieces across storage nodes
+4. You only need ~1/3 of the pieces (about 83 pieces) to reconstruct your file
+
+**Cost Comparison:**
+
+| Method | Your File | Total Storage | Retrieval Requirement | Cost Efficiency |
+|--------|-----------|---------------|----------------------|-----------------|
+| Traditional Replication (3 copies) | 10 MB | 30 MB | Need 1/3 nodes | ❌ Expensive |
+| Walrus Erasure Coding | 10 MB | ~50 MB | Need 1/3 of pieces from ANY nodes | ✅ 40% cheaper + more fault-tolerant |
+
+**Key Benefits:**
+
+✅ **More Fault-Tolerant**: Can lose 2/3 of storage nodes and still retrieve data
+✅ **Cost-Effective**: ~5x storage vs 3x for replication, but distributed across MORE nodes
+✅ **Better Decentralization**: Data spread across hundreds of nodes, not just 3
+✅ **No Single Point of Failure**: No specific node is critical
 
 ### Architecture Components
 
@@ -101,10 +145,21 @@ Instead of storing multiple full copies of your data (expensive), Walrus:
 - **Permanent**: Cannot be deleted, only expire naturally
 - **Deletable**: Can be explicitly deleted by owner
 
-### 5. **Shared Blobs**
-- Multiple parties can fund and extend storage
+### 5. **Owned vs Shared Blobs**
+
+**By default, all blobs are OWNED blobs:**
+- Belong to your wallet address
+- Only the owner can extend the lifetime
+- Only the owner can delete (if deletable)
+
+**Shared blobs are optional:**
+- Created with `--share` flag or by converting an owned blob
+- Wrapped in a shared Sui object
+- **Anyone** can fund and extend the storage lifetime
 - Useful for community or public datasets
-- Anyone can contribute SUI tokens to extend lifetime
+- Perfect for collaborative data storage
+
+**Important:** Regardless of owned or shared, **ALL blob data is publicly readable** by anyone with the blob ID. Ownership only controls who can extend/fund the storage, not who can access the data.
 
 ### 6. **Quilts**
 - Collections of multiple blobs stored together
